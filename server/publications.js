@@ -9,6 +9,10 @@
 //
 //  See: http://www.meteorpedia.com/read/Understanding_Meteor_Publish_and_Subscribe
 // 
+
+
+// NOTE: Publications automatically re-publish whenever the user logs out
+
 Meteor.publish('posts_subscription', function() {
 	return PostsAPI.find();
 });
@@ -18,5 +22,13 @@ Meteor.publish('comments_subscription', function(filterByPostId) {
 });
 
 Meteor.publish('notifications_subscription', function(){
-    return NotificationsAPI.find(); // Can we just limit the notifications returned to just the current user?
+  
+  // Can't call Meteor.userId here or in a Meteor.methods because the 
+  // connection hasn't been established yet, and the user is attached
+  // to the connection... so we use "this" instead
+  //
+  // console.log("Meteor.userId is " + Meteor.userId());
+     console.log("this.userId is " + this.userId);
+ 
+  return NotificationsAPI.find({userId: this.userId}); // Here we limit the notifications returned to just the current user
 });
